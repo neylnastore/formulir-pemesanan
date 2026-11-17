@@ -1,1 +1,480 @@
-sddd
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulir Pemesanan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    .card { border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .card-header { background: #0d6efd; color: white; border-radius: 1rem 1rem 0 0 !important; }
+    .summary-box { background: #fff; border: 1px solid #dee2e6; border-radius: .5rem; }
+    .loading { opacity: .6; pointer-events: none; }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header py-3">
+          <h4 class="mb-0">Formulir Pemesanan</h4>
+          <small>Masukkan data dengan benar supaya paket tidak nyasar yaa🥰🙏</small>
+        </div>
+        <div class="card-body p-4">
+          <form id="orderForm">
+            <!-- Produk -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Pilih Produk <span class="text-danger">*</span></label>
+              <select class="form-select" id="produk" name="Produk" required>
+                <option value="" data-price="0">-- Pilih Produk --</option>
+                <option value="Produk A" data-price="50000">Contoh Produk (Kecil)</option>
+                <option value="Produk B" data-price="65000">Contoh Produk (Besar)</option>
+              </select>
+            </div>
+
+            <!-- Nama & WA -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nama <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nama" name="Nama" placeholder="Nama anda" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nomor WA Aktif <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" id="noWa" name="No WA" placeholder="08xxxxxxxxxx" pattern="[0-9]{10,15}" required>
+              </div>
+            </div>
+
+            <!-- Alamat Patokan -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Alamat Lengkap (Patokan Jl/Gang/Dusun) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="alamat" name="Alamat" rows="2" placeholder="Contoh: Jl. Merdeka No. 10, Gang Melati, Dusun Sukamaju" required></textarea>
+            </div>
+
+            <!-- Wilayah -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Provinsi <span class="text-danger">*</span></label>
+                <select class="form-select" id="provinsi" name="Provinsi" required>
+                  <option value="">-- Pilih Provinsi --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kota/Kabupaten <span class="text-danger">*</span></label>
+                <select class="form-select" id="kota" name="Kota/Kabupaten" required disabled>
+                  <option value="">-- Pilih Kota/Kabupaten --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kecamatan <span class="text-danger">*</span></label>
+                <select class="form-select" id="kecamatan" name="Kecamatan" required disabled>
+                  <option value="">-- Pilih Kecamatan --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kelurahan/Desa <span class="text-danger">*</span></label>
+                <select class="form-select" id="kelurahan" name="Kelurahan" required disabled>
+                  <option value="">-- Pilih Kelurahan --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kode Pos <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="kodePos" name="Kode Pos" placeholder="Otomatis" readonly required>
+              </div>
+            </div>
+
+            <!-- Metode Pembayaran -->
+            <div class="mb-3 border p-3 rounded bg-light">
+              <label class="form-label fw-semibold d-block mb-2">Metode Pembayaran <span class="text-danger">*</span></label>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="Metode Pembayaran" id="metodeTransfer" value="Transfer Bank" checked>
+                <label class="form-check-label" for="metodeTransfer">
+                  Transfer Bank <span class="text-success fw-bold">(Bisa Klaim Diskon Ongkir)</span>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="Metode Pembayaran" id="metodeCOD" value="COD">
+                <label class="form-check-label" for="metodeCOD">
+                  COD / Bayar di Tempat <span class="text-danger fw-bold">(+Rp 10.000)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Klaim Diskon (Hanya muncul jika Transfer) -->
+            <div class="form-check mb-3" id="diskonContainer">
+              <input class="form-check-input" type="checkbox" name="Klaim Diskon Ongkir" id="klaimDiskon" value="Ya">
+              <label class="form-check-label fw-semibold text-success" for="klaimDiskon">
+                Klaim Diskon Ongkir (Potongan Rp 15.000)
+              </label>
+            </div>
+
+            <!-- Ringkasan Pembayaran -->
+            <div class="summary-box p-3 mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Harga Produk:</span>
+                <span id="hargaProdukDisplay">Rp0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Estimasi Ongkir:</span>
+                <span id="ongkirDisplay">Rp0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 text-danger d-none" id="biayaCodRow">
+                <span>Biaya COD:</span>
+                <span id="biayaCodDisplay">Rp10.000</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 text-success d-none" id="diskonRow">
+                <span>Diskon Ongkir:</span>
+                <span id="diskonDisplay">-Rp15.000</span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between fw-bold fs-5">
+                <span>Total Pembayaran:</span>
+                <span id="totalDisplay" class="text-primary">Rp0</span>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="submitBtn">
+              Kirim Pesanan & Lanjut ke WA
+            </button>
+          </form>
+          <div id="alertBox" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // KONFIGURASI (GANTI URL & NOMOR WA ANDA)
+  // ============================================================
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaOD1g1fPrHotlL3ykTwjkbzqfF43r573cnyxjjHzqS64Cg63Ch5U5CX3aI--x0ObJ/exec'; // GANTI URL APPS SCRIPT
+  const WA_ADMIN = '6289682061259'; // GANTI DENGAN NOMOR WA ADMIN (awali 62)
+  const API_WILAYAH = 'https://www.emsifa.com/api-wilayah-indonesia/v2';
+
+  const BIAYA_COD = 10000;
+  const NOMINAL_DISKON = 15000;
+
+  const ONGKIR_MAP = {
+    'Aceh': 70000, 'Sumatera Utara': 65000, 'Sumatera Barat': 60000, 'Riau': 60000,
+    'Jambi': 55000, 'Sumatera Selatan': 50000, 'Bengkulu': 60000, 'Lampung': 45000,
+    'Kepulauan Bangka Belitung': 55000, 'Kepulauan Riau': 65000, 'DKI Jakarta': 30000,
+    'Jawa Barat': 25000, 'Jawa Tengah': 20000, 'DI Yogyakarta': 22000, 'Jawa Timur': 12000,
+    'Banten': 28000, 'Bali': 30000, 'Nusa Tenggara Barat': 40000, 'Nusa Tenggara Timur': 65000,
+    'Kalimantan Barat': 65000, 'Kalimantan Tengah': 70000, 'Kalimantan Selatan': 60000,
+    'Kalimantan Timur': 75000, 'Kalimantan Utara': 85000, 'Sulawesi Utara': 85000,
+    'Sulawesi Tengah': 80000, 'Sulawesi Selatan': 65000, 'Sulawesi Tenggara': 75000,
+    'Gorontalo': 85000, 'Sulawesi Barat': 70000
+  };
+
+  // ============================================================
+  // ELEMEN
+  // ============================================================
+  const provinsiSelect = document.getElementById('provinsi');
+  const kotaSelect = document.getElementById('kota');
+  const kecamatanSelect = document.getElementById('kecamatan');
+  const kelurahanSelect = document.getElementById('kelurahan');
+  const kodePosInput = document.getElementById('kodePos');
+  const produkSelect = document.getElementById('produk');
+  
+  const metodeTransfer = document.getElementById('metodeTransfer');
+  const metodeCOD = document.getElementById('metodeCOD');
+  const klaimDiskon = document.getElementById('klaimDiskon');
+  const diskonContainer = document.getElementById('diskonContainer');
+
+  const hargaProdukDisplay = document.getElementById('hargaProdukDisplay');
+  const ongkirDisplay = document.getElementById('ongkirDisplay');
+  const biayaCodRow = document.getElementById('biayaCodRow');
+  const diskonRow = document.getElementById('diskonRow');
+  const totalDisplay = document.getElementById('totalDisplay');
+
+  const form = document.getElementById('orderForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertBox = document.getElementById('alertBox');
+
+  // ============================================================
+  // FUNGSI BANTU & KALKULASI TOTAL
+  // ============================================================
+  function formatRupiah(angka) {
+    return 'Rp' + angka.toLocaleString('id-ID');
+  }
+
+  function showAlert(message, type = 'info') {
+    alertBox.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show">${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+  }
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Gagal mengambil data');
+    return res.json();
+  }
+
+  function hitungTotal() {
+    // 1. Harga Produk
+    const selectedProduk = produkSelect.options[produkSelect.selectedIndex];
+    const hargaProduk = parseInt(selectedProduk.dataset.price || 0);
+    hargaProdukDisplay.textContent = formatRupiah(hargaProduk);
+
+    // 2. Ongkir
+    const selectedProv = provinsiSelect.options[provinsiSelect.selectedIndex];
+    const ongkir = parseInt(selectedProv.dataset.ongkir || 0);
+    ongkirDisplay.textContent = formatRupiah(ongkir);
+
+    // 3. Metode Pembayaran & Biaya/Disklon
+    let biayaCOD = 0;
+    let diskon = 0;
+
+    if (metodeCOD.checked) {
+      biayaCOD = BIAYA_COD;
+      biayaCodRow.classList.remove('d-none');
+      diskonContainer.classList.add('d-none');
+      klaimDiskon.checked = false; // Uncheck jika pilih COD
+    } else {
+      biayaCodRow.classList.add('d-none');
+      diskonContainer.classList.remove('d-none');
+      if (klaimDiskon.checked) {
+        diskon = NOMINAL_DISKON;
+        diskonRow.classList.remove('d-none');
+      } else {
+        diskonRow.classList.add('d-none');
+      }
+    }
+
+    // 4. Total Akhir
+    let total = hargaProduk + ongkir + biayaCOD - diskon;
+    if (total < 0) total = 0; // Jaga-jaga agar tidak minus
+    totalDisplay.textContent = formatRupiah(total);
+    totalDisplay.dataset.total = total;
+  }
+
+  // ============================================================
+  // MUAT DATA WILAYAH
+  // ============================================================
+  async function loadProvinces() {
+    try {
+      const response = await fetchJSON(`${API_WILAYAH}/provinces.json`);
+      const allProvinces = response.data;
+      const provincesData = allProvinces.filter(p => ONGKIR_MAP.hasOwnProperty(p.name));
+      provincesData.sort((a, b) => a.name.localeCompare(b.name));
+
+      provinsiSelect.innerHTML = '<option value="" data-ongkir="0">-- Pilih Provinsi --</option>';
+      provincesData.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        opt.dataset.name = p.name;
+        opt.dataset.ongkir = ONGKIR_MAP[p.name];
+        provinsiSelect.appendChild(opt);
+      });
+    } catch (err) {
+      showAlert('Gagal memuat data provinsi. Periksa koneksi internet.', 'danger');
+    }
+  }
+
+  async function loadRegencies(provinceId) {
+    kotaSelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+    kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    kotaSelect.disabled = true; kecamatanSelect.disabled = true; kelurahanSelect.disabled = true;
+    kodePosInput.value = '';
+    if (!provinceId) return;
+
+    try {
+      const response = await fetchJSON(`${API_WILAYAH}/regencies/${provinceId}.json`);
+      const regenciesData = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      regenciesData.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id; opt.textContent = r.name;
+        kotaSelect.appendChild(opt);
+      });
+      kotaSelect.disabled = false;
+    } catch (err) { showAlert('Gagal memuat data kota/kabupaten.', 'danger'); }
+  }
+
+  async function loadDistricts(regencyId) {
+    kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    kecamatanSelect.disabled = true; kelurahanSelect.disabled = true;
+    kodePosInput.value = '';
+    if (!regencyId) return;
+
+    try {
+      const response = await fetchJSON(`${API_WILAYAH}/districts/${regencyId}.json`);
+      const districtsData = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      districtsData.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id; opt.textContent = d.name;
+        kecamatanSelect.appendChild(opt);
+      });
+      kecamatanSelect.disabled = false;
+    } catch (err) { showAlert('Gagal memuat data kecamatan.', 'danger'); }
+  }
+
+  async function loadVillages(districtId) {
+    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    kelurahanSelect.disabled = true;
+    kodePosInput.value = '';
+    if (!districtId) return;
+
+    try {
+      const response = await fetchJSON(`${API_WILAYAH}/villages/${districtId}.json`);
+      const villagesData = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      villagesData.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.id; opt.textContent = v.name;
+        opt.dataset.postalCode = v.postal_code || '';
+        kelurahanSelect.appendChild(opt);
+      });
+      kelurahanSelect.disabled = false;
+    } catch (err) { showAlert('Gagal memuat data kelurahan.', 'danger'); }
+  }
+
+  // ============================================================
+  // EVENT LISTENERS
+  // ============================================================
+  produkSelect.addEventListener('change', hitungTotal);
+  provinsiSelect.addEventListener('change', (e) => { hitungTotal(); loadRegencies(e.target.value); });
+  kotaSelect.addEventListener('change', (e) => loadDistricts(e.target.value));
+  kecamatanSelect.addEventListener('change', (e) => loadVillages(e.target.value));
+  kelurahanSelect.addEventListener('change', (e) => {
+    const opt = e.target.options[e.target.selectedIndex];
+    kodePosInput.value = opt.dataset.postalCode || '';
+  });
+
+  metodeTransfer.addEventListener('change', hitungTotal);
+  metodeCOD.addEventListener('change', hitungTotal);
+  klaimDiskon.addEventListener('change', hitungTotal);
+
+  // ============================================================
+  // SUBMIT FORM & REDIRECT WA
+  // ============================================================
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    alertBox.innerHTML = '';
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const selectedProv = provinsiSelect.options[provinsiSelect.selectedIndex];
+    const ongkirValue = parseInt(selectedProv.dataset.ongkir || 0);
+    if (ongkirValue > 100000) {
+      showAlert('Maaf, ongkir ke wilayah ini melebihi Rp100.000.', 'warning');
+      return;
+    }
+
+    // 1. Kumpulkan Data Mentah
+    const formData = new FormData(form);
+    
+    // 2. TIMPA ID DENGAN NAMA TEKS WILAYAH
+    formData.set('Provinsi', provinsiSelect.options[provinsiSelect.selectedIndex].textContent);
+    formData.set('Kota/Kabupaten', kotaSelect.options[kotaSelect.selectedIndex].textContent);
+    formData.set('Kecamatan', kecamatanSelect.options[kecamatanSelect.selectedIndex].textContent);
+    formData.set('Kelurahan', kelurahanSelect.options[kelurahanSelect.selectedIndex].textContent);
+
+    // 3. Tambahan Data Kalkulasi
+    const totalAkhir = totalDisplay.dataset.total;
+    const metode = formData.get('Metode Pembayaran');
+    const isDiskon = formData.get('Klaim Diskon Ongkir') ? 'Ya' : 'Tidak';
+    const biayaCodText = metode === 'COD' ? formatRupiah(BIAYA_COD) : 'Rp0';
+    const diskonText = isDiskon === 'Ya' ? formatRupiah(NOMINAL_DISKON) : 'Rp0';
+
+    formData.append('Biaya COD', biayaCodText);
+    formData.append('Diskon', diskonText);
+    formData.append('Estimasi Ongkir', formatRupiah(ongkirValue));
+    formData.append('Total Pembayaran', formatRupiah(totalAkhir));
+
+    // 4. Konversi ke URL Encoded
+    const urlEncoded = new URLSearchParams(formData).toString();
+    
+    // --- UNTUK DEBUGGING (Buka F12 > Console untuk melihat data yang dikirim) ---
+    console.log("Data yang dikirim ke Spreadsheet:", Object.fromEntries(formData));
+    // -----------------------------------------------------------------------------
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Memproses...';
+
+    try {
+      // 5. Kirim ke Google Spreadsheet
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: urlEncoded
+      });
+      const result = await response.json();
+
+      if (result.result === 'success') {
+        // 6. Siapkan Pesan WA
+        const nama = formData.get('Nama');
+        const produk = formData.get('Produk');
+        const alamat = formData.get('Alamat');
+        const kelurahanText = formData.get('Kelurahan');
+        const kecamatanText = formData.get('Kecamatan');
+        const kotaText = formData.get('Kota/Kabupaten');
+        const provinsiText = formData.get('Provinsi');
+        const kodePos = formData.get('Kode Pos');
+        const noWa = formData.get('No WA');
+
+        let waText = `Halo Admin, saya sudah mengisi form pemesanan.%0A%0A`;
+        waText += `*📦 DETAIL PESANAN*%0A`;
+        waText += `Produk: ${produk}%0A`;
+        waText += `Nama: ${nama}%0A`;
+        waText += `No WA: ${noWa}%0A`;
+        waText += `Alamat: ${alamat}%0A`;
+        waText += `Kel/Desa: ${kelurahanText}%0A`;
+        waText += `Kecamatan: ${kecamatanText}%0A`;
+        waText += `Kota/Kab: ${kotaText}%0A`;
+        waText += `Provinsi: ${provinsiText}%0A`;
+        waText += `Kode Pos: ${kodePos}%0A%0A`;
+        
+        waText += `*💳 RINCIAN PEMBAYARAN*%0A`;
+        waText += `Metode: ${metode}%0A`;
+        if (metode === 'Transfer Bank') {
+          waText += `Klaim Diskon Ongkir: ${isDiskon}%0A`;
+        }
+        waText += `Ongkir: ${formatRupiah(ongkirValue)}%0A`;
+        if (metode === 'COD') waText += `Biaya COD: ${formatRupiah(BIAYA_COD)}%0A`;
+        if (isDiskon === 'Ya') waText += `Diskon: -${formatRupiah(NOMINAL_DISKON)}%0A`;
+        waText += `*TOTAL: ${formatRupiah(totalAkhir)}*%0A%0A`;
+        waText += `Mohon konfirmasi pesanan saya. Terima kasih! 🙏`;
+
+        showAlert('✅ Pesanan tersimpan! Anda akan diarahkan ke WhatsApp Admin...', 'success');
+        
+        // Redirect ke WA setelah 1.5 detik
+        setTimeout(() => {
+          window.open(`https://wa.me/${WA_ADMIN}?text=${waText}`, '_blank');
+          form.reset();
+          
+          // Reset form state UI
+          kotaSelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+          kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+          kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+          kotaSelect.disabled = true; 
+          kecamatanSelect.disabled = true; 
+          kelurahanSelect.disabled = true;
+          kodePosInput.value = '';
+          
+          hitungTotal();
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Kirim Pesanan & Lanjut ke WA';
+        }, 1500);
+      } else {
+        throw new Error(result.error || 'Terjadi kesalahan sistem');
+      }
+    } catch (err) {
+      showAlert('❌ Gagal mengirim pesanan: ' + err.message, 'danger');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Kirim Pesanan & Lanjut ke WA';
+    }
+  });
+
+  // Inisialisasi awal
+  loadProvinces();
+  hitungTotal();
+</script>
+</body>
+</html>
